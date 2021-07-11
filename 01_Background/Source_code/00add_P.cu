@@ -4,6 +4,9 @@
 // Do the add vector operation
 int* add(int* a, int* b, int* result, int N) {
     // -:YOUR CODE HERE:-
+    for(size_t i=0; i<N; i++)
+        result[i] = a[i] + b[i];
+    return result;
 }
 
 // Configure the dynamic memory to initialize
@@ -13,6 +16,9 @@ void onHost() {
     int N = 10;
 
     // -:YOUR CODE HERE:-
+    int* a = (int*) malloc(N*sizeof(int));
+    int* b = (int*) malloc(N*sizeof(int));
+    int* result = (int*) malloc(N*sizeof(int));
 
     for (int i = 0; i < N; i++) {
         a[i] = -i;
