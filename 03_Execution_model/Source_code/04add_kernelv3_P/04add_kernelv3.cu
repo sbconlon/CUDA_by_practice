@@ -4,6 +4,7 @@
 
 // define necessary variables
 // -:YOUR CODE HERE:-
+const int ARRAY_SIZE = 50;
 
 const int ARRAY_BYTES = ARRAY_SIZE * sizeof(int);
 
@@ -15,6 +16,8 @@ __global__ void addKernel(int* d_a, int* d_b, int* d_result) {
     // number of blocks per grid in x   -> gridDim.x
 
     // -:YOUR CODE HERE:-
+    size_t tid = blockDim.x * blockIdx.x + threadIdx.x;
+    d_result[tid] = d_a[tid] + d_b[tid];
 }
 
 void onDevice(int* h_a, int* h_b, int* h_result) {
@@ -22,15 +25,23 @@ void onDevice(int* h_a, int* h_b, int* h_result) {
 
     // allocate memory on the device
     // -:YOUR CODE HERE:-
+    cudaMalloc((void**)&d_a, ARRAY_BYTES);
+    cudaMalloc((void**)&d_b, ARRAY_BYTES);
+    cudaMalloc((void**)&d_result, ARRAY_BYTES);
 
     // copythe arrays 'a' and 'b' to the device
     // -:YOUR CODE HERE:-
+    cudaMemcpy(d_a, h_a, ARRAY_BYTES, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, h_b, ARRAY_BYTES, cudaMemcpyHostToDevice);
 
     // run the kernel
+    int BLOCKS = 10;
+    int THREADS = 5;
     addKernel<<<BLOCKS, THREADS>>>(d_a, d_b, d_result);
 
     // copy the array 'result' back from the device to the CPU
     // -:YOUR CODE HERE:-
+    cudaMemcpy(h_result, d_result, ARRAY_BYTES, cudaMemcpyDeviceToHost);
 
     // check the results
     for (int i = 0; i < ARRAY_SIZE; i++) {
@@ -40,6 +51,9 @@ void onDevice(int* h_a, int* h_b, int* h_result) {
 
     // free device memory
     // -:YOUR CODE HERE:-
+    cudaFree(d_a);
+    cudaFree(d_b);
+    cudaFree(d_result);
 }
 
 void onHost() {
@@ -47,6 +61,9 @@ void onHost() {
 
     // allocate memory on the host
     // -:YOUR CODE HERE:-
+    h_a = (int*)malloc(ARRAY_BYTES);
+    h_b = (int*)malloc(ARRAY_BYTES);
+    h_result = (int*)malloc(ARRAY_BYTES);
 
     // filling the arrays 'a' and 'b' on the CPU
     for (int i = 0; i < ARRAY_SIZE; i++) {
@@ -66,6 +83,9 @@ void onHost() {
 
     // free host memory
     // -:YOUR CODE HERE:-
+    free(h_a);
+    free(h_b);
+    free(h_result);
 }
 
 int main() {
